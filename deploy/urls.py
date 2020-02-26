@@ -3,6 +3,7 @@ from django.urls import path
 from .report_views import get_deploy_count, DeployCountView
 from .views import DeployCreateView, DeployListView, DeployDetailView, \
     jenkins_build, jenkins_status, update_deploypool_jenkins
+from .deploy_views import PublishView, DeployView
 from django.contrib.auth.decorators import login_required
 
 app_name = 'deploy'
@@ -14,6 +15,9 @@ urlpatterns = [
     path('jenkins_status/', login_required(jenkins_status), name='jenkins_status'),
     path('update_deploypool_jenkins/', login_required(update_deploypool_jenkins),
          name='update_deploypool_jenkins'),
+    path('publish/', login_required(PublishView.as_view()), name='publish'),
+    path('deploy/<slug:app_name>/<slug:deploy_version>/<slug:env>/',
+         login_required(DeployView.as_view()), name='deploy'),
 ]
 
 urlpatterns += [

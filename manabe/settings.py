@@ -135,6 +135,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 NGINX_URL = "http://192.168.12.103"
+MABLOG_URL = "http://127.0.0.1:8888"
 JENKINS_URL = "http://192.168.12.107:8080/"
 JENKINS_USERNAME = 'admin'
 JENKINS_PASSWORD = 'oracle'

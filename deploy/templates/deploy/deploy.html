@@ -1,0 +1,202 @@
+{% extends "manabe/template.html" %}
+{% block title %}部署服务器列表{% endblock %}
+{% block content %}
+<div>
+    <span class="l">
+        <span class="label label-primary radius" id="id_app_name" app_name="{{ app_name }}">
+            {{ app_name }}
+        </span>
+        <span class="label label-primary radius" id="id_deploy_version" deploy_version="{{ deploy_version }}">
+            {{ deploy_version }}
+        </span>
+        <span class="label label-primary radius" id="id_env" env="{{ env }}">
+            {{ env }}
+        </span>
+        <span class="label label-primary radius">
+            {% ifequal item.is_inc_tot "TOT" %}
+                全量部署
+            {% endifequal %}
+            {% ifequal item.is_inc_tot "INC" %}
+                增量部署
+            {% endifequal %}
+        </span>
+        <span class="label label-primary radius">
+            {% ifequal item.deploy_type "deployall" %}
+                程序及配置
+            {% endifequal %}
+            {% ifequal item.deploy_type "deploypkg" %}
+                程序
+            {% endifequal %}
+            {% ifequal item.deploy_type "deploycfg" %}
+                配置
+            {% endifequal %}
+        </span>
+        <span class="label label-primary radius" id="id_deploy_no"
+              deploy_no="{{ deploy_no }}" mablog_url="{{ mablog_url }}">
+            <a href="{{ mablog_url }}/wslog/log_show/?app_name={{ app_name }}&deploy_version={{ deploy_version }}&operation_no={{ deploy_no }}&env_name=Demo" target="_blank">
+                部署日志:{{ deploy_no }}
+            </a>
+        </span>
+    </span>
+</div>
+<br>
+<br>
+<form action="" method="post" name="serverForm" id="serverForm">
+    <table class="table table-border table-bordered table-bg">
+    <thead>
+    <th>
+        <input type="checkbox" name="SelectAllServer">
+        SaltStack minion名称
+    </th>
+    <th>IP地址</th>
+    <th>端口</th>
+    <th>应用名称</th>
+    <th>环境</th>
+    <th>当前版本</th>
+    <th>发布状态</th>
+    <th>用户</th>
+    <th>时间</th>
+    </thead>
+    <tbody>
+    {% for item in object_list %}
+    <tr class="text-l">
+        <td>
+            <input type="checkbox" name="serverSelect" value="{{ item.id }}">
+            {{ item.salt_name }}
+        </td>
+        <td>{{ item.ip_address }}</td>
+        <td>{{ item.port }}</td>
+        <td>{{ item.app_name }}</td>
+        <td>{{ item.env_name }}</td>
+        <td>
+            {% ifequal deploy_version item.histroy_deploy|slice:"0:18" %}
+            <span class="label label-success radius">
+                {{ item.history_deploy|slice:"0:18" }}
+            </span>
+            {% else %}
+            <span class="label label-danger radius">
+                {{ item.history_deploy|slice:"0:18" }}
+            </span>
+            {% endifequal %}
+        </td>
+
+        <td>{{ item.deploy_status }}</td>
+        <td>{{ item.op_user }}</td>
+        <td>{{ item.change_date }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</form>
+<br>
+{% if has_right %}
+<div class="text-l">
+    <input type="text" name="operation_type" value="deploy" hidden/>
+    <input type="text" name="deploy_version" value="{{ deploy_version }}" hidden/>
+    <input type="text" name="env" value="{{ env }}" hidden/>
+    <input type="text" name="app_name" value="{{ app_name }}" hidden/>
+    <span class="select-box inline l">
+        <select name="sp_type" id="sp_select" class="select"
+                onchange="getParallelOption(this.value)">
+            <option selected value="serial_deploy">串行</option>
+            <option value="parallel_deploy">并行</option>
+        </select>
+    </span>
+    <span class="select-box inline l">
+        <select name="is-restart-server" id="is-restart-server" class="select">
+            {% ifequal is_restart_status True %}
+            <option selected value="restart">重启服务</option>
+            <option value="norestart">禁止重启</option>
+            {% endifequal %}
+            {% ifequal is_restart_status False %}
+            <option value="restart">重启服务</option>
+            <option selected value="norestart">禁止重启</option>
+            {% endifequal %}
+        </select>
+    </span>
+    <span class="select-box inline l">
+        <select class="select" name="deploy_type" id="deploy_type">
+            {% ifequal deploy_type "deployall" %}
+            <option selected value="deployall">发布所有</option>
+            {% endifequal %}
+            {% ifequal deploy_type "deploypkg" %}
+            <option selected value="deploypkg">发布程序</option>
+            {% endifequal %}
+            {% ifequal deploy_type "deploycfg" %}
+            <option selected value="deploycfg">发布配置</option>
+            {% endifequal %}
+            <option value="rollback">回滚</option>
+        </select>
+    </span>
+    <span>
+        <button class="btn btn-danger radius" id="btn-deploy">立即部署</button>
+    </span>
+</div>
+{% else %}
+<div class="Huialert Huialert-error">
+    <i class="Hui-iconfont">&#xe6a6;</i>
+    你没有{{ app_name }}的{{ env }}环境的发布权限，请联系该应用管理员:{{ admin_user }}
+</div>
+{% endif %}
+{# pagination #}
+<div class="text-r">
+    <ul>
+        {% if page_obj.has_previous %}
+        <li><a href="{{ current_url }}page={{ page_obj.previous_page_number }}" class="btn btn-primary-outline radius">
+            上一页
+        </a></li>
+        {% else %}
+        <li><a href="" class="btn btn-primary-outline radius">
+            上一页
+        </a></li>
+        {% endif %}
+        <li><a href="#">
+            <span class="label label-primary radius">
+                {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+            </span>
+        </a></li>
+        {% if page_obj.has_next %}
+        <!-- 这里是拼接url和page=...，所以不要在{{ current_url }}和page加空格-->
+        <li><a href="{{ current_url }}page={{ page_obj.next_page_number }}" class="btn btn-primary-outline radius">
+            下一页
+        </a></li>
+        {% else %}
+        <li><a href="" class="btn btn-primary-outline radius">
+            下一页
+        </a></li>
+        {% endif %}
+    </ul>
+</div>
+<sytle>
+#deploylogout{
+    padding:10px;
+    background-color:#FF2200;
+    color:#FFFFFF;
+    width:820px;
+    height:460px;
+    border-radius:5px;
+    display:none;
+    position: absolute;
+    top:22%;
+    left:50%;
+    margin-left:-300px;
+    margin-top:-150px;
+}
+</sytle>
+<div id="deploylogout">
+    日志输出:
+    <span class="uk-float-right">
+        <button id="close_deploylogout" class="btn btn-info"
+                onclick="document.getElementById('deploylogout').style.display='none'">
+            关闭
+        </button>
+    </span>
+    <iframe src="" id="iframe_log" width="800px" height="400"></iframe>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+{% include "deploy/deploy.js" %}
+</script>
+{% endblock %}

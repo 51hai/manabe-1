@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Q
-from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from .models import DeployPool, DeployStatus
 from appinput.models import App
