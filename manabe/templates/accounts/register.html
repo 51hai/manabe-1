@@ -1,0 +1,55 @@
+{% extends "accounts/template.html" %}
+{% block title %} Manabe-注册 {% endblock %}
+
+{% block content %}
+<form action="" class="form form-horizontal" method="post">
+    {% csrf_token %}
+    <div class="row cl">
+        <label class="form-label col-xs-3">
+            <i class="Hui-iconfont">&#xe60d;</i>
+        </label>
+        <div class="formControls col-xs-8">
+            {{ form.username }}
+        </div>
+    </div>
+<!-- 这里是cl，不是c1，hi-ui的栅格系统需要属于class='c1'   -->
+    <div class="row cl">
+        <label class="form-label col-xs-3">
+            <i class="Hui-iconfont">&#xe63b;</i>
+        </label>
+        <div class="formControls col-xs-8">
+            {{ form.email }}
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-3">
+            <i class="Hui-iconfont">&#xe60e;</i>
+        </label>
+        <div class="formControls col-xs-8">
+            {{ form.password }}
+        </div>
+    </div>
+    <div class="row cl">
+        <label class="form-label col-xs-3">
+            <i class="Hui-iconfont">&#xe60e;</i>
+        </label>
+        <div class="formControls col-xs-8">
+            {{ form.password2 }}
+        </div>
+    </div>
+    <div class="row cl text-c">
+        {% for item in error %}
+        <font style="color:red;">{{ item }}</font>
+        {% endfor %}
+        <div class="formControls">
+            <input type="submit" class="btn btn-success radius size-L"
+                   value="&nbsp;注&nbsp;&nbsp;&nbsp;&nbsp;册&nbsp;">
+            <input type="reset" class="btn btn-default radius size-L"
+                   value="&nbsp;取&nbsp;&nbsp;&nbsp;&nbsp;消&nbsp;">
+            <a href="{% url 'login' %}">
+                <span class="btn btn-primary-outline radius size-L">登录</span>
+            </a>
+        </div>
+    </div>
+</form>
+{% endblock %}

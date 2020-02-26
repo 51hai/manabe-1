@@ -1,0 +1,91 @@
+{% load static %}
+<aside class="Hui-aside">
+    <div class="menu_dropdown bk_2">
+        <dl id="menu-deploy-list">
+            <dt>
+                <i class="Hui-iconfont">&#xe604;</i>
+                发布单
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="{% url 'deploy:list' %}">发布单列表</a></li>
+                    <li><a href="{% url 'deploy:create' %}">新建发布单（编译）</a></li>
+                    <li><a href="#">新建发布单（上传）</a></li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-envx">
+            <dt>
+                <i class="Hui-iconfont">&#xe6de;</i>
+                环境
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="{% url 'envx:list' %}">环境流转</a></li>
+                    <li><a href="{% url 'envx:history' %}">流转历史</a></li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-deploy">
+            <dt>
+                <i class="Hui-iconfont">&#xe603;</i>
+                部署
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="#">发布</a></li>
+                    <li><a href="#">启停</a></li>
+                    <li><a href="#">部署历史</a></li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-app-server">
+            <dt>
+                <i class="Hui-iconfont">&#xe61d;</i>
+                管理
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="{% url 'appinput:list' %}">应用列表</a></li>
+                    <li><a href="{% url 'appinput:create' %}">应用录入</a></li>
+                    <li><a href="{% url 'serverinput:list' %}">服务器列表</a></li>
+                    <li><a href="{% url 'serverinput:create' %}">服务器录入</a></li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-status">
+            <dt>
+                <i class="Hui-iconfont">&#xe61e;</i>
+                统计
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="{% url 'deploy:deploy_count' %}">发布数据</a></li>
+                    <li><a href="#">应用</a></li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-doc">
+            <dt>
+                <i class="Hui-iconfont">&#xe623;</i>
+                文档
+                <i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li><a href="#">ChangeLog</a></li>
+                    <li><a href="#">操作文档</a></li>
+                    <li><a href="#">Web API</a></li>
+                </ul>
+            </dd>
+        </dl>
+    </div>
+</aside>
+<div class="dislpayArrow hidden-xs">
+    <a class="pngfix" href="javascript:void(0);" onclick="displaynavbar(this)"></a>
+</div>

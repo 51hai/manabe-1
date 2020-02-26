@@ -1,0 +1,32 @@
+{% extends "manabe/template.html" %}
+{% block title %}服务器详情{% endblock %}
+{% block content %}
+<table class="table table-border table-bordered radius">
+    <tbody>
+    <tr>
+        <td>服务器名称</td>
+        <td>{{ object }}</td>
+    </tr>
+    <tr>
+        <td>IP地址</td>
+        <td>{{ object.ip_address }}</td>
+    </tr>
+    <tr>
+        <td>端口</td>
+        <td>{{ object.port }}</td>
+    </tr>
+    <tr>
+        <td>SaltStack minion名称</td>
+        <td>{{ object.salt_name }}</td>
+    </tr>
+    <tr>
+        <td>应用名称</td>
+        <td>{{ object.app_name }}</td>
+    </tr>
+    <tr>
+        <td>最近操作用户</td>
+        <td>{{ object.op_user }}</td>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}

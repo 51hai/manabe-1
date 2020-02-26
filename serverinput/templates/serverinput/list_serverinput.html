@@ -1,0 +1,115 @@
+{% extends "manabe/template.html" %}
+{% block title %}服务器列表{% endblock %}
+{% block content %}
+<div>
+    <span class="l">
+        {% if is_admin_group %}
+            <a href="{% url 'serverinput:create' %}" class="btn btn-primary radius">
+                新建服务器
+            </a>
+        {% endif %}
+    </span>
+    <span class="select-box inline r">
+        {% include "manabe/filter.html" %}
+        {% include "manabe/search.html" %}
+    </span>
+</div>
+<br>
+<br>
+
+<table class="table table-border table-bordered table-bg">
+    <thead>
+    <th>服务器名称</th>
+    <th>IP地址</th>
+    <th>端口</th>
+    <th>应用名称</th>
+    <th>操作</th>
+    <th>时间</th>
+    </thead>
+    <tbody>
+    {% for item in server %}
+    <tr class="text-l">
+        <td>
+            <span data-toggle="tooltip" data-placement="bottom"
+                  title="{{ item.description }}">
+                <a href="{% url 'serverinput:detail' pk=item.id %}">
+                {{ item.name }}
+                </a>
+            </span>
+        </td>
+        <td>{{ item.ip_address }}</td>
+        <td>{{ item.port }}</td>
+        <td>{{ item.app_name }}</td>
+        <td>
+            {% if is_admin_group %}
+            <a href="{% url 'serverinput:edit' pk=item.id %}">
+                <button class="btn btn-warning-outline radius">编辑</button>
+            </a>
+            {% else %}
+            <button class="btn disabled radius">编辑</button>
+            {% endif %}
+        </td>
+        <td>{{ item.change_date }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<br>
+{# pagination #}
+<div class="text-r">
+    <ul>
+        {% if page_obj.has_previous %}
+        <li><a href="{{ current_url }}page={{ page_obj.previous_page_number }}" class="btn btn-primary-outline radius">
+            上一页
+        </a></li>
+        {% else %}
+        <li><a href="" class="btn btn-primary-outline radius">
+            上一页
+        </a></li>
+        {% endif %}
+        <li><a href="#">
+            <span class="label label-primary radius">
+                {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+            </span>
+        </a></li>
+        {% if page_obj.has_next %}
+        <!-- 这里是拼接url和page=...，所以不要在{{ current_url }}和page加空格-->
+        <li><a href="{{ current_url }}page={{ page_obj.next_page_number }}" class="btn btn-primary-outline radius">
+            下一页
+        </a></li>
+        {% else %}
+        <li><a href="" class="btn btn-primary-outline radius">
+            下一页
+        </a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$(".search_btn").click(function(){
+    var search_pk = $("input[name='search_pk']").val() || "demo";
+    if (search_pk == "demo") {
+        $.Huimodalalert('<span class="c-error">亲，请输入关键字再进行搜索！</span>',3000);
+        return false;
+    }
+    search_pk = search_pk.replace(/(^\s*)|(\s*$)/g, "");
+    var url = "{% url 'serverinput:list' %}?search_pk=" + search_pk
+    console.log(url)
+    location.href = url
+});
+$(".filter_btn").click(function(){
+    var filter_app_id = $("select[name='App_name']").val();
+    console.log(filter_app_id);
+    if (filter_app_id.length == 0) {
+        $.Huimodalalert('<span class="c-error">亲，请选择组件再过滤！</span>',3000);
+        return false;
+    } else {
+        var url = "{% url 'serverinput:list' %}?app_id="+ filter_app_id;
+    }
+    console.log(url)
+    location.href = url
+});
+</script>
+{% endblock %}
