@@ -1,12 +1,16 @@
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
 
+from appinput.models import App
 from public.user_group import has_right, get_app_admin
 from rightadmin.models import Action
 from serverinput.models import Server
 from .models import DeployPool
+from .salt_cmd_views import deploy
 from django.utils import timezone
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F
 
 
 class PublishView(ListView):
@@ -66,7 +70,7 @@ class DeployView(ListView):
         deploy_item = DeployPool.objects.get(name=deploy_version)
         context['is_restart_status'] = deploy_item.app_name.is_restart_status
         context['deploy_type'] = deploy_item.deploy_type
-        context['deploy_no'] = deploy_item.deploy_type
+        context['deploy_no'] = deploy_item.deploy_no
         context['is_inc_tot'] = deploy_item.is_inc_tot
         context['mablog_url'] = settings.MABLOG_URL
 
@@ -86,3 +90,60 @@ class DeployView(ListView):
             query_string = '?' + query_string + '&'
         context['current_url'] = query_string
         return context
+
+
+@csrf_exempt
+def deploy_cmd(request):
+    user_name = request.user
+    groud_cmd = request.POST.get('group_cmd')
+    is_restart_server = False
+    subserver_list = []
+    p_value = 0
+    deploy_version = ''
+    app_name = ''
+    deploy_type = ''
+    sp_type = ''
+    operation_type = ''
+    for cmd_data in groud_cmd.split('&'):
+        if cmd_data.startswith('serverSelect'):
+            subserver_list.append(cmd_data.split('=')[1])
+        if cmd_data.startswith('operation_type'):
+            operation_type = (cmd_data.split('=')[1])
+        if cmd_data.startswith('deploy_version'):
+            deploy_version = (cmd_data.split('=')[1])
+        if cmd_data.startswith('app_name'):
+            app_name = (cmd_data.split('=')[1])
+        if cmd_data.startswith('deploy_type'):
+            deploy_type = (cmd_data.split('=')[1])
+        if cmd_data.startswith('is_restart_server'):
+            if (cmd_data.split('=')[1]) == 'restart':
+                is_restart_server = True
+        if cmd_data.startswith('env'):
+            env = (cmd_data.split('=')[1])
+        if cmd_data.startswith('sp_type'):
+            sp_type = (cmd_data.split('=')[1])
+        if cmd_data.startswith('p_value'):
+            p_value = (cmd_data.split('=')[1])
+
+    if sp_type == "serial_deploy" or p_value > len(subserver_list):
+        p_value = len(subserver_list)
+    subserver_list_group = mod_group(subserver_list, p_value)
+    deploy_version = deploy_version if deploy_version != '' else 'Demo'
+
+    if deploy_version == 'Demo':
+        App.objects.filter(name=app_name).update(op_log_no=F('op_log_no') + 1)
+    else:
+        DeployPool.objects.filter(name=deploy_version). \
+            update(deploy_no=F('deploy_no') + 1)
+
+    deploy(subserver_list_group, deploy_type, is_restart_server,
+           user_name, deploy_version, operation_type)
+    result = {'return': 'OK'}
+    return JsonResponse(result, status=200)
+
+
+def mod_group(alist, agroup):
+    tmp_list = [[] for i in range(agroup)]
+    for i in range(len(alist)):
+        tmp_list[i % agroup].append(alist[i])
+    return tmp_list

@@ -43,7 +43,7 @@ class DeployCreateView(CreateView):
                            extra_tags='c-error')
             return self.render_to_response({'form': form})
         random_letter = ''.join(random.sample(string.ascii_uppercase, 2))
-        deploy_version = time.strftime('%Y-%m-%d-%H%M%S', time.localtime()) + random_letter
+        deploy_version = time.strftime('%Y-%m%d-%H%M%S', time.localtime()) + random_letter
         DeployPool.objects.create(
             name=deploy_version,
             description=form.cleaned_data['description'],

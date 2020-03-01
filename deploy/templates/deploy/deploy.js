@@ -20,5 +20,40 @@ $("#close_deploylogout").click(function(){
 });
 
 $("#btn-deploy").click(function(evt){
+    evt.preventDefault();
+    var group_data = $("#serverForm").serialize();
+    var_self = this;
+    console.log(group_data);
     
+    if(group_data.indexOf("serverSelect") == -1){
+        $.Huimodalalert('<span class="c-error">请确认所有选项正确！</span>',3000);
+        return false;
+    }
+    
+    $.ajax({
+        url: '{% url "deploy:deploy_cmd" %}',
+        type: 'post',
+        data: {
+            group_cmd: group_data,
+        },
+        dataType: 'json',
+        //在将数据发送到后台之前，需要浏览器响应的动作。
+        beforeSend: function(){
+            $("#btn-deploy").hide();
+            deploy_version = $("#id_deploy_version").attr("deploy_version");
+            app_name = $("#id_app_name").attr("app_name");
+            mablog_url = $("#id_deploy_no").attr("mablog_url");
+            deploy_no = parseInt($("#id_deploy_no").attr("deploy_no")) + 1;
+            url = mablog_url + "/wslog/log_show/?app_name=" + app_name + "&deploy_version=" + deploy_version + "&operation_no=" + deploy_no + "&env_name=Demo";
+            console.log("url==>" + url);
+            $("#iframe_log").attr('src',url);
+            $("#deploylogout").show();
+            console.log("group_data==>" + group_data)
+        },
+        success: function(json){
+            console.log(json);
+        },
+        error: function(){},
+        complete: function(){}
+    });
 });
