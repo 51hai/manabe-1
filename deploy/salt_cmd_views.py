@@ -124,7 +124,7 @@ def action_run(server_id, action, user_name, percent_value,
         change_server(server_id, deploy_version, action, "error")
         change_deploypool(env_name, deploy_version, app_name, action)
         content = {
-            'msg': 'success',
+            'msg': 'failed',
             'ip': server_item.ip_address,
             'action': action
         }
@@ -224,6 +224,6 @@ def add_history(user, app_name, deploy_name, env_name, do_type, content):
         app_name=app_name,
         deploy_name=deploy_name,
         env_name=env_name,
-        do_type=do_type,
+        do_type=do_type.upper(),
         content=content
     )

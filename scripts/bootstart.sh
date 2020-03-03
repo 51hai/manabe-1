@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+#set -o errexit
+#set -o nounset
+#set -o pipefail
 
 # a(app)e(env)v(version)z(zip)p(pkg)
 # o(port)c(act)i(inc_tot)u(url)
@@ -23,11 +23,11 @@ do
     i) INC_TOT=$OPTARG ;;
     u) URL=$OPTARG ;;
     ?) echo "error" 
-       exit 1;;
+       exit 11;;
   esac
 done
 
-echo $APP $ENV $VER $ZIP $PKG $PORT $ACT $INC_TOT $URL
+#echo $APP $ENV $VER $ZIP $PKG $PORT $ACT $INC_TOT $URL
 
 
 APP_ROOT_HOME="/app"
@@ -36,11 +36,12 @@ LOCAL_ROOT_STORE="/var/ops"
 APP_HOME=$APP_ROOT_HOME/$APP
 LOCAL_STORE=$LOCAL_ROOT_STORE/$APP/$VER
 LOCAL_BACKUP=$LOCAL_ROOT_STORE/$APP/BACKUP
+LOG="$APP_HOME/$APP.log"
 
 psid=0
 
 pid_of_app(){
-  psid=$(pgrep -f "java.*${PKG}") | tr -d " " 
+  psid=$(pgrep -f "java.*${PKG}" | tr -d " ") 
   #psid=$psid/$$
   if [ -z $psid ]; then
     psid=0
@@ -126,24 +127,28 @@ deploycfg(){
   fi
 }
 
-start(){
+startserver(){
   pid_of_app
   if [ $psid -ne 0 ];then
     echo "$APP already started, error."
     exit 2
+  fi
+  # 这里必须要切换到$APP_HOME下，再进行服务启动，否则无法找到config目录
+  cd $APP_HOME
+  nohup java -jar $APP_HOME/$PKG --server.port=$PORT --spring.profiles.active=$ENV >> $LOG 2>&1 &
+  #echo "nohup java -jar $APP_HOME/$PKG --server.port=$PORT --spring.profiles.active=$ENV >> $LOG 2>&1 &"
+  sleep 3
+  pid_of_app
+  if [ $psid -ne 0 ];then
+    echo "$APP start success."
   else
-    nohup java -jar "$APP_HOME/$PKG" --server.port=$PORT --spring.profiles.active=$ENV > /tmp/$APP.log 2>&1 &
-    pid_of_app
-    if [ $psid -ne 0 ];then
-      echo "$APP start success."
-    else
-      echo "$APP start fail."
-      exit 3
+    echo "$APP start fail."
+    exit 3
   fi
 }
 
 
-stop(){
+stopserver(){
   pid_of_app
   if [ $psid -ne 0 ];then
     kill -9 $psid
@@ -152,6 +157,7 @@ stop(){
     else
       echo "$APP stop fail."
       exit 4
+    fi
   else
     echo "$APP has stoped."
   fi
@@ -168,8 +174,8 @@ case "$ACT" in
 	deploypkg) deploypkg;;
 	deploycfg) deploycfg;;
 	rollback) rollback;;
-    start) start;;
-    stop) stop;;
+        start) startserver;;
+        stop) stopserver;;
 	check) check;;
     *)
         echo "Usage: $0 {only 9 kinds of action can be choose: "

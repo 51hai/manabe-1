@@ -37,8 +37,8 @@
             <dd>
                 <ul>
                     <li><a href="{% url 'deploy:publish' %}">发布</a></li>
-                    <li><a href="#">启停</a></li>
-                    <li><a href="#">部署历史</a></li>
+                    <li><a href="{% url 'deploy:operate' %}">启停</a></li>
+                    <li><a href="{% url 'deploy:history' %}">部署历史</a></li>
                 </ul>
             </dd>
         </dl>

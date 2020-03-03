@@ -1,5 +1,5 @@
 {% extends "manabe/template.html" %}
-{% block title %}发布单列表{% endblock %}
+{% block title %}发布单历史{% endblock %}
 {% block content %}
 <div>
     <span class="select-box inline r">
@@ -14,10 +14,9 @@
     <thead>
     <th>发布单名称</th>
     <th>应用名称</th>
-    <th>部署类型</th>
     <th>环境</th>
-    <th>状态</th>
-    <th>操作</th>
+    <th>部署类型</th>
+    <th>操作内容</th>
     <th>用户</th>
     <th>时间</th>
     </thead>
@@ -25,77 +24,34 @@
     {% for item in object_list %}
     <tr class="text-l">
         <td>
-            <span data-toggle="tooltip" data-placement="bottom"
-                  title="{{ item.description }}">
-                <a href="{% url 'deploy:detail' pk=item.id %}">
-                {{ item.name }}
+            <span data-toggle="tooltip" data-placement="bottom">
+                <a href="{% url 'deploy:detail' pk=item.deploy_name.id %}">
+                {{ item.deploy_name }}
                 </a>
             </span>
         </td>
         <td>{{ item.app_name }}</td>
-        <td>
-            {% ifequal item.deploy_type "deployall" %}
-            <span class="label label-secondary radius">
-                程序及配置
-            </span>
-            {% endifequal %}
-            {% ifequal item.deploy_type "deploypkg" %}
-            <span class="label label-secondary radius">
-                程序
-            </span>
-            {% endifequal %}
-            {% ifequal item.deploy_type "deploycfg" %}
-            <span class="label label-secondary radius">
-                配置
-            </span>
-            {% endifequal %}
-        </td>
         <td>{{ item.env_name }}</td>
         <td>
-            <span class="label radius label-danger">
-                {{ item.deploy_status.description }}
+            {% ifequal item.do_type "deploy" %}
+            <span class="label label-secondary radius">
+                软件部署
             </span>
+            {% endifequal %}
+            {% ifequal item.do_type "operate" %}
+            <span class="label label-secondary radius">
+                服务启停
+            </span>
+            {% endifequal %}
         </td>
-        <td>
-            <a href="{% url 'deploy:deploy' app_name=item.app_name deploy_version=item.name env=item.env_name %}">
-                <button id="deployBtn" class="btn btn-primary-outline radius">
-                部署
-                </button>
-            </a>
-        </td>
-        <td>{{ item.create_user }}</td>
+        <td>{{ item.content }}</td>
+        <td>{{ item.user }}</td>
         <td>{{ item.change_date }}</td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
 <br>
-<div id="modal-demo" class="modal fade" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content radius">
-            <div class="modal-header">
-                <h3 class="modal-title">构建程序发布包</h3>
-                <a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
-            </div>
-            <div class="modal-body">
-                <p>
-                    APP名称：<span id="modal_app_name"></span><br/>
-                    发布单：<span id="modal_deploy_version" class="label label-primary radius"></span><br/>
-                    Jenkins Job:<span id="modal_jenkins_job"></span><br/>
-                    Jenkins Url:<span id="modal_jenkins_url"></span><br/><br/>
-                    <button class="btn btn-danger btn_gen_pkg">
-                        开始构建
-                    </button>
-                    <span id="build_progress"></span>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" onClick="modal_close()">关闭</button>
-            </div>
-        </div>
-    </div>
-</div>
 {# pagination #}
 <div class="text-r">
     <ul>
@@ -136,7 +92,7 @@ $(".search_btn").click(function(){
         return false;
     }
     search_pk = search_pk.replace(/(^\s*)|(\s*$)/g, "");
-    var url = "{% url 'deploy:publish' %}?search_pk=" + search_pk
+    var url = "{% url 'deploy:history' %}?search_pk=" + search_pk
     console.log(url)
     location.href = url
 });
@@ -147,14 +103,10 @@ $(".filter_btn").click(function(){
         $.Huimodalalert('<span class="c-error">亲，请选择组件再过滤！</span>',3000);
         return false;
     } else {
-        var url = "{% url 'deploy:publish' %}?app_id="+ filter_app_id;
+        var url = "{% url 'deploy:history' %}?app_id="+ filter_app_id;
     }
     console.log(url)
-    //用来重载当前网页，否则搜索和过滤实现了，但是前端不会显示出来
     location.href = url
 });
-
-{% include "deploy/build.js" %}
-
 </script>
 {% endblock %}

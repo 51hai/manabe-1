@@ -51,3 +51,42 @@ $("#btn-deploy").click(function(evt){
         complete: function(){}
     });
 });
+
+$("#btn-operate").click(function(evt){
+    evt.preventDefault();
+    var group_data = $("#serverForm").serialize();
+    var_self = this;
+    console.log(group_data);
+
+    if(group_data.indexOf("serverSelect") == -1){
+        $.Huimodalalert('<span class="c-error">请确认所有选项正确！</span>',3000);
+        return false;
+    }
+
+    $.ajax({
+        url: '{% url "deploy:deploy_cmd" %}',
+        type: 'post',
+        data: {
+            group_cmd: group_data,
+        },
+        dataType: 'json',
+        //在将数据发送到后台之前，需要浏览器响应的动作。
+        beforeSend: function(){
+            $("#btn-operate").hide();
+            env_name = $("#id_env").attr("env");
+            app_name = $("#id_app_name").attr("app_name");
+            mablog_url = $("#id_op_log_no").attr("mablog_url");
+            op_log_no = parseInt($("#id_op_log_no").attr("op_log_no")) + 1;
+            url = mablog_url + "/wslog/log_show/?app_name=" + app_name + "&deploy_version=Demo&operation_no=" + op_log_no + "&env_name=" + env_name;
+            console.log("url==>" + url);
+            $("#iframe_log").attr('src',url);
+            $("#deploylogout").show();
+            console.log("group_data==>" + group_data)
+        },
+        success: function(json){
+            console.log(json);
+        },
+        error: function(){},
+        complete: function(){}
+    });
+});
