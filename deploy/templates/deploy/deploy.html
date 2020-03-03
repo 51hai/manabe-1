@@ -96,7 +96,7 @@
         <input type="text" name="app_name" value="{{ app_name }}" hidden/>
         <span class="select-box inline l">
         <select name="sp_type" id="sp_select" class="select"
-                onchange="getParallelOption(this.value)">
+                onchange="getParallelOptions(this.value)">
             <option selected value="serial_deploy">串行</option>
             <option value="parallel_deploy">并行</option>
         </select>
@@ -167,7 +167,7 @@
         {% endif %}
     </ul>
 </div>
-<sytle>
+<style>
     #deploylogout{
     padding:10px;
     background-color:#FF2200;
@@ -182,7 +182,7 @@
     margin-left:-300px;
     margin-top:-150px;
     }
-</sytle>
+</style>
 <div id="deploylogout">
     日志输出:
     <span class="uk-float-right">
@@ -191,7 +191,7 @@
             关闭
         </button>
     </span>
-    <iframe src="" id="iframe_log" width="800px" height="400"></iframe>
+        <iframe src="" id="iframe_log" width="800px" height="400"></iframe>
 </div>
 {% endblock %}
 

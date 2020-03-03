@@ -4,9 +4,11 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from django.http import JsonResponse
 from django.conf import settings
+from public.mablog import post_mablog
 from serverinput.models import Server
 from .models import DeployPool, DeployStatus, History
 from public.salt import salt_api_inst
+import json
 
 mylog = logging.getLogger('manabe')
 
@@ -60,7 +62,7 @@ def action_run(server_id, action, user_name, percent_value,
     app_name = server_item.app_name.name
     script_url = server_item.app_name.script_url
     zip_package_name = server_item.app_name.zip_package_name
-    package_name = server_item.app_name.zip_package_name
+    package_name = server_item.app_name.package_name
     nginx_url = settings.NGINX_URL
 
     if deploy_version != 'Demo':
@@ -72,10 +74,12 @@ def action_run(server_id, action, user_name, percent_value,
         is_inc_tot = "tot"
         deploy_no = server_item.app_name.op_log_no
 
-    arg_args = f"-a {app_name} -e {env_name} -v{deploy_version} " \
+    arg_args = f"-a {app_name} -e {env_name} -v {deploy_version} " \
                f"-z {zip_package_name} -p {package_name} -o {port} " \
                f"-c {action} -i {is_inc_tot} -u {nginx_url}"
     arg = [script_url, arg_args, 'runas=' + app_user, 'env={"LC_ALL":""}']
+    if action == 'start':
+        print(arg)
     result = salt_run(tgt=tgt, arg=arg)
 
     mylog.debug(f"deploy argument is: {arg}.")
@@ -102,6 +106,12 @@ def action_run(server_id, action, user_name, percent_value,
             '%Y-%m-%d %H:%M:%S', time.localtime()
         ) + action + '\n' + tgt + ', deploy progress ' + percent_value + '\n'
 
+        # 这里要转一下，转成字符串，否则在往mablog中写日志时，会因为request.user无法序列化成json，而无法入库
+        post_mablog(app_name=app_name, ip_address=tgt, user_name=str(user_name),
+                    operation_type=operation_type, operation_no=deploy_no,
+                    deploy_version=deploy_version, env_name=env_name,
+                    log_content=log_content)
+
         add_history(
             user_name,
             server_item.app_name,
@@ -120,7 +130,12 @@ def action_run(server_id, action, user_name, percent_value,
         }
         log_content = time.strftime(
             '%Y-%m-%d %H:%M:%S', time.localtime()
-        ) + action + '\n' + tgt + ', error \n' + result
+        ) + action + '\n' + tgt + ', error \n' + json.dumps(result)
+
+        post_mablog(app_name=app_name, ip_address=tgt, user_name=str(user_name),
+                    operation_type=operation_type, operation_no=deploy_no,
+                    deploy_version=deploy_version, env_name=env_name,
+                    log_content=log_content)
 
         add_history(
             user_name,

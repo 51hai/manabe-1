@@ -200,5 +200,16 @@ def demo():
     # print(s.cp_dir(tgt, 'salt://a', '/tmp/'))
 
 
+def demo2():
+    print(salt_api_inst().cmd_script(
+        tgt='192.168.12.107',
+        arg=["http://192.168.12.103:9999/scripts/bootstart.sh",
+             " -a ZEP-BACKEND-JAVA -e prd -v 2020-02-25-002806TO "
+             "-z haha.tar.gz  "
+             "-p javademo-1.0.jar -o 9987 -c start -i TOT "
+             "-u http://192.168.12.103", 'runas=root', 'env={"LC_ALL":""}'])
+    )
+
+
 if __name__ == '__main__':
-    demo()
+    demo2()
