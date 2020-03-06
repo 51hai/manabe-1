@@ -1,5 +1,5 @@
 # IDE
-.idea/
-__pycache__/
+/.idea/
+*/__pycache__
 
 db.sqlite3
